@@ -3,6 +3,7 @@ package org.AFM.rssbridge.model;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -27,10 +28,8 @@ public class News {
 
     private String mainText;
 
-    private int viewings;
-
     private List<Comment> comments;
 
-    private LocalDate publicationDate;
+    private LocalDateTime publicationDate;
 
 }

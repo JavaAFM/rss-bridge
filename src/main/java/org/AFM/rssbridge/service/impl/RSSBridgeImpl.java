@@ -14,13 +14,24 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -48,8 +59,7 @@ public class RSSBridgeImpl implements RSSBridge {
                 String mainText = fetchMainText("https://tengrinews.kz" + url);
                 List<Comment> comments = fetchComments("https://tengrinews.kz" + url);
                 List<String> tags = fetchTags("https://tengrinews.kz" + url);
-                int views = fetchViews("https://tengrinews.kz/news/");
-                LocalDate publicationDate = LocalDate.now();
+                LocalDateTime publicationDate = fetchDate("https://tengrinews.kz" + url);
 
                 News news = new News();
                 news.setTitle(title);
@@ -57,11 +67,9 @@ public class RSSBridgeImpl implements RSSBridge {
                 news.setImage_url(imageUrl);
                 news.setSummary(summary);
                 news.setPublicationDate(publicationDate);
-                news.setViewings(0);
                 news.setMainText(mainText);
                 news.setComments(comments);
                 news.setTags(tags);
-                news.setViewings(views);
 
                 newsList.add(news);
             } catch (Exception e) {
@@ -103,53 +111,50 @@ public class RSSBridgeImpl implements RSSBridge {
         }
     }
 
-    @Override
-    public int fetchViews(String articleUrl) {
-        try (WebClient webClient = new WebClient()) {
-            webClient.getOptions().setJavaScriptEnabled(true);
-            HtmlPage page = webClient.getPage(articleUrl);
 
-            webClient.waitForBackgroundJavaScript(10000);
-
-            HtmlElement viewElement = page.getFirstByXPath("//span[@class='tn-text-preloader-dark']");
-
-            String viewCount = viewElement != null ? viewElement.getTextContent() : "1";
-
-            return Integer.parseInt(viewCount);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
     public List<Comment> fetchComments(String url) {
         List<Comment> commentList = new ArrayList<>();
-        try (WebClient webClient = new WebClient()) {
-            webClient.getOptions().setJavaScriptEnabled(true);
-            HtmlPage page = webClient.getPage(url);
 
-            webClient.waitForBackgroundJavaScript(10000);
+        // Setup WebDriver (ensure you have the appropriate WebDriver for your browser, e.g., ChromeDriver)
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");  // Optional: run in headless mode
+        WebDriver driver = new ChromeDriver(options);
 
-            List<HtmlDivision> commentElements = page.getByXPath("//div[contains(@class,'tn-comment-item')]");
+        try {
+            driver.get(url);
 
-            for (HtmlDivision commentElement : commentElements) {
-                HtmlElement authorElement = commentElement.getFirstByXPath(".//a[@class='tn-user-name']");
-                HtmlElement contentElement = commentElement.getFirstByXPath(".//div[contains(@class,'tn-comment-item-content-text')]");
-                HtmlElement timeElement = commentElement.getFirstByXPath(".//time");
+            // Wait for the comments section to be fully loaded (adjust the wait condition based on your page structure)
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class,'tn-comment-item')]")));
 
-                String author = (authorElement != null) ? authorElement.getTextContent() : "";
-                String content = (contentElement != null) ? contentElement.getTextContent() : "";
-                String time = (timeElement != null) ? timeElement.getTextContent() : "";
+            // Fetch all comment elements
+            List<WebElement> commentElements = driver.findElements(By.xpath("//div[contains(@class,'tn-comment-item')]"));
+
+            // Loop through each comment element and extract the required data
+            for (WebElement commentElement : commentElements) {
+                WebElement authorElement = commentElement.findElement(By.xpath(".//a[@class='tn-user-name']"));
+                WebElement contentElement = commentElement.findElement(By.xpath(".//div[contains(@class,'tn-comment-item-content-text')]"));
+                WebElement timeElement = commentElement.findElement(By.xpath(".//time"));
+
+                String author = (authorElement != null) ? authorElement.getText() : "";
+                String content = (contentElement != null) ? contentElement.getText() : "";
+                String time = (timeElement != null) ? timeElement.getText() : "";
 
                 Comment comment = new Comment();
                 comment.setAuthor(author);
                 comment.setContent(content);
                 comment.setTime(time);
 
+                // Add the comment to the list
                 commentList.add(comment);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            // Close the driver after use
+            driver.quit();
         }
+
         return commentList;
     }
 
@@ -170,4 +175,24 @@ public class RSSBridgeImpl implements RSSBridge {
         return tagList;
     }
 
+    @Override
+    public LocalDateTime fetchDate(String articleUrl) {
+        try {
+            Document doc = Jsoup.connect(articleUrl).get();
+
+            Element dateTimeElement = doc.select("div.date-time").first();
+            String dateTimeString = "";
+            if (dateTimeElement != null) {
+                 dateTimeString = dateTimeElement.text();
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy | HH:mm");
+
+            LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+
+            return localDateTime;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 }
