@@ -127,10 +127,8 @@ public class RSSBridgeImpl implements RSSBridge {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class,'tn-comment-item')]")));
 
-            // Fetch all comment elements
-            List<WebElement> commentElements = driver.findElements(By.xpath("//div[contains(@class,'tn-comment-item')]"));
+            List<WebElement> commentElements = driver.findElements(By.xpath("//div[@class='tn-comment-item']"));
 
-            // Loop through each comment element and extract the required data
             for (WebElement commentElement : commentElements) {
                 WebElement authorElement = commentElement.findElement(By.xpath(".//a[@class='tn-user-name']"));
                 WebElement contentElement = commentElement.findElement(By.xpath(".//div[contains(@class,'tn-comment-item-content-text')]"));
