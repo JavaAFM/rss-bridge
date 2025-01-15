@@ -84,10 +84,29 @@ public class RSSBridgeImpl implements RSSBridge {
     public Elements allNewsElements() {
         try {
             WebsiteConfig websiteConfig = jsonReader.readWebsiteConfig("src/main/resources/website.json");
-
-            Document doc = Jsoup.connect(websiteConfig.getUrl()).get();
-
-            return doc.select(".content_main_item");
+            String baseUrl = websiteConfig.getUrl();
+            Elements allElements = new Elements();
+            
+            // Get the first page
+            Document doc = Jsoup.connect(baseUrl).get();
+            allElements.addAll(doc.select(".content_main_item"));
+            
+            // Get additional pages (let's get first 5 pages for example)
+            for (int page = 2; page <= 5; page++) {
+                String pageUrl = baseUrl + "page/" + page + "/";
+                try {
+                    Document pageDoc = Jsoup.connect(pageUrl).get();
+                    Elements pageElements = pageDoc.select(".content_main_item");
+                    if (pageElements.isEmpty()) {
+                        break; // No more news items found
+                    }
+                    allElements.addAll(pageElements);
+                } catch (IOException e) {
+                    break; // Stop if we can't load more pages
+                }
+            }
+            
+            return allElements;
         } catch (IOException e) {
             e.printStackTrace();
             return new Elements();
