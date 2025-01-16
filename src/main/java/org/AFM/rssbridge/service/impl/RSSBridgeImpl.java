@@ -15,6 +15,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -113,47 +114,60 @@ public class RSSBridgeImpl implements RSSBridge {
 
 
     public List<Comment> fetchComments(String url) {
-        List<Comment> commentList = new ArrayList<>();
-
-        // Setup WebDriver (ensure you have the appropriate WebDriver for your browser, e.g., ChromeDriver)
+        Set<Comment> uniqueComments = new HashSet<>(); // Use Set for uniqueness
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");  // Optional: run in headless mode
+        options.addArguments("--headless");
         WebDriver driver = new ChromeDriver(options);
 
         try {
             driver.get(url);
-
-            // Wait for the comments section to be fully loaded (adjust the wait condition based on your page structure)
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class,'tn-comment-item')]")));
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            int maxAttempts = 5;
+            int attempts = 0;
 
-            List<WebElement> commentElements = driver.findElements(By.xpath("//div[@class='tn-comment-item']"));
+            wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[contains(@class,'tn-comment-item')]")));
+
+            while (attempts < maxAttempts) {
+                try {
+                    WebElement moreButton = driver.findElement(By.className("more-comments"));
+                    js.executeScript("arguments[0].click();", moreButton);
+                    attempts++;
+                    Thread.sleep(1500);
+                } catch (Exception e) {
+                    break;
+                }
+            }
+
+            List<WebElement> commentElements = driver.findElements(
+                By.xpath("//div[@class='tn-comment-item']"));
 
             for (WebElement commentElement : commentElements) {
-                WebElement authorElement = commentElement.findElement(By.xpath(".//a[@class='tn-user-name']"));
-                WebElement contentElement = commentElement.findElement(By.xpath(".//div[contains(@class,'tn-comment-item-content-text')]"));
-                WebElement timeElement = commentElement.findElement(By.xpath(".//time"));
+                String author = commentElement.findElement(
+                    By.xpath(".//a[@class='tn-user-name']")).getText().trim();
+                String content = commentElement.findElement(
+                    By.xpath(".//div[contains(@class,'tn-comment-item-content-text')]")).getText().trim();
+                String time = commentElement.findElement(
+                    By.xpath(".//time")).getText().trim();
 
-                String author = (authorElement != null) ? authorElement.getText() : "";
-                String content = (contentElement != null) ? contentElement.getText() : "";
-                String time = (timeElement != null) ? timeElement.getText() : "";
-
-                Comment comment = new Comment();
-                comment.setAuthor(author);
-                comment.setContent(content);
-                comment.setTime(time);
-
-                // Add the comment to the list
-                commentList.add(comment);
+                // Only add non-empty comments
+                if (!author.isEmpty() && !content.isEmpty()) {
+                    Comment comment = new Comment();
+                    comment.setAuthor(author);
+                    comment.setContent(content);
+                    comment.setTime(time);
+                    uniqueComments.add(comment);
+                }
             }
+
+            return new ArrayList<>(uniqueComments);
         } catch (Exception e) {
             e.printStackTrace();
+            return new ArrayList<>();
         } finally {
-            // Close the driver after use
             driver.quit();
         }
-
-        return commentList;
     }
 
     @Override
