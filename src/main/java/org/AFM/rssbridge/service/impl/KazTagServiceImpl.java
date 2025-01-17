@@ -16,6 +16,6 @@ public class KazTagServiceImpl implements KazTagService {
 
     @Override
     public Elements allNewsElements() {
-        return null;
+       return null;
     }
 }

@@ -25,6 +25,7 @@ public class MainController {
 
     @GetMapping("/kaztag")
     public ResponseEntity<List<News>> getKaztagNews(){
-        Elements elements = kaztagService
+        Elements elements = kaztagService.allNewsElements();
+        return ResponseEntity.ok(kaztagService.toNews(elements));
     }
 }

@@ -1,6 +1,7 @@
 package org.AFM.rssbridge.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.AFM.rssbridge.WebSiteConstants;
 import org.AFM.rssbridge.model.Comment;
 import org.AFM.rssbridge.model.News;
 import org.AFM.rssbridge.model.WebsiteConfig;
@@ -80,9 +81,8 @@ public class TengriServiceImpl implements TengriService {
     @Override
     public Elements allNewsElements() {
         try {
-            WebsiteConfig websiteConfig = jsonReader.readWebsiteConfig("src/main/resources/website.json");
 
-            Document doc = Jsoup.connect(websiteConfig.getUrl()).get();
+            Document doc = Jsoup.connect(WebSiteConstants.TENGRI.getLabel()).get();
 
             return doc.select(".content_main_item");
         } catch (IOException e) {
