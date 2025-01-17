@@ -5,6 +5,7 @@ import org.AFM.rssbridge.model.Comment;
 import org.AFM.rssbridge.model.News;
 import org.AFM.rssbridge.model.WebsiteConfig;
 import org.AFM.rssbridge.service.RSSBridge;
+import org.AFM.rssbridge.uitl.DateTimeFormatterUtil;
 import org.AFM.rssbridge.uitl.JsonReader;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlDivision;
@@ -38,12 +39,13 @@ import java.util.Set;
 @AllArgsConstructor
 public class RSSBridgeImpl implements RSSBridge {
     private final JsonReader jsonReader;
+    private final DateTimeFormatterUtil dateUtil;
 
 
     @Override
     public List<News> toNews(Elements elements) {
         List<News> newsList = new ArrayList<>();
-
+        System.out.println("THERE ARE " + elements.size() + "ELEMENTS");
         for (Element element : elements) {
             try {
                 String title = element.select(".content_main_item_title a").text();
@@ -114,7 +116,7 @@ public class RSSBridgeImpl implements RSSBridge {
 
 
     public List<Comment> fetchComments(String url) {
-        Set<Comment> uniqueComments = new HashSet<>(); // Use Set for uniqueness
+        Set<Comment> uniqueComments = new HashSet<>();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         WebDriver driver = new ChromeDriver(options);
@@ -151,7 +153,6 @@ public class RSSBridgeImpl implements RSSBridge {
                 String time = commentElement.findElement(
                     By.xpath(".//time")).getText().trim();
 
-                // Only add non-empty comments
                 if (!author.isEmpty() && !content.isEmpty()) {
                     Comment comment = new Comment();
                     comment.setAuthor(author);
@@ -197,11 +198,7 @@ public class RSSBridgeImpl implements RSSBridge {
             if (dateTimeElement != null) {
                  dateTimeString = dateTimeElement.text();
             }
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy | HH:mm");
-
-            LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
-
-            return localDateTime;
+            return dateUtil.parseDateTime(dateTimeString);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
