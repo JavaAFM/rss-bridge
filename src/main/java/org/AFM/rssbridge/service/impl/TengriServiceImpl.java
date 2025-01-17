@@ -4,13 +4,9 @@ import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.model.Comment;
 import org.AFM.rssbridge.model.News;
 import org.AFM.rssbridge.model.WebsiteConfig;
-import org.AFM.rssbridge.service.RSSBridge;
+import org.AFM.rssbridge.service.TengriService;
 import org.AFM.rssbridge.uitl.DateTimeFormatterUtil;
 import org.AFM.rssbridge.uitl.JsonReader;
-import org.htmlunit.WebClient;
-import org.htmlunit.html.HtmlDivision;
-import org.htmlunit.html.HtmlElement;
-import org.htmlunit.html.HtmlPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,9 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +31,7 @@ import java.util.Set;
 
 @Service
 @AllArgsConstructor
-public class RSSBridgeImpl implements RSSBridge {
+public class TengriServiceImpl implements TengriService {
     private final JsonReader jsonReader;
     private final DateTimeFormatterUtil dateUtil;
 

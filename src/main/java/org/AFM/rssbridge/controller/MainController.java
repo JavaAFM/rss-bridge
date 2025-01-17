@@ -2,7 +2,8 @@ package org.AFM.rssbridge.controller;
 
 import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.model.News;
-import org.AFM.rssbridge.service.RSSBridge;
+import org.AFM.rssbridge.service.KazTagService;
+import org.AFM.rssbridge.service.TengriService;
 import org.jsoup.select.Elements;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +14,17 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 public class MainController {
-    private final RSSBridge rssBridge;
+    private final TengriService tengriService;
+    private final KazTagService kaztagService;
 
-    @GetMapping("/rss")
-    public ResponseEntity<List<News>> getAllNews(){
-        Elements elements = rssBridge.allNewsElements();
-        return ResponseEntity.ok(rssBridge.toNews(elements));
+    @GetMapping("/tengri")
+    public ResponseEntity<List<News>> getTengriNews(){
+        Elements elements = tengriService.allNewsElements();
+        return ResponseEntity.ok(tengriService.toNews(elements));
+    }
+
+    @GetMapping("/kaztag")
+    public ResponseEntity<List<News>> getKaztagNews(){
+        Elements elements = kaztagService
     }
 }
