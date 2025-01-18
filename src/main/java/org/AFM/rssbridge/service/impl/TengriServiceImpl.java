@@ -1,13 +1,11 @@
 package org.AFM.rssbridge.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.AFM.rssbridge.WebSiteConstants;
+import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.Comment;
 import org.AFM.rssbridge.model.News;
-import org.AFM.rssbridge.model.WebsiteConfig;
 import org.AFM.rssbridge.service.TengriService;
 import org.AFM.rssbridge.uitl.DateTimeFormatterUtil;
-import org.AFM.rssbridge.uitl.JsonReader;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,7 +31,6 @@ import java.util.Set;
 @Service
 @AllArgsConstructor
 public class TengriServiceImpl implements TengriService {
-    private final JsonReader jsonReader;
     private final DateTimeFormatterUtil dateUtil;
 
 
@@ -54,10 +51,10 @@ public class TengriServiceImpl implements TengriService {
 
                 String summary = element.select(".content_main_item_announce").text();
 
-                String mainText = fetchMainText("https://tengrinews.kz" + url);
-                List<Comment> comments = fetchComments("https://tengrinews.kz" + url);
-                List<String> tags = fetchTags("https://tengrinews.kz" + url);
-                LocalDateTime publicationDate = fetchDate("https://tengrinews.kz" + url);
+                String mainText = fetchMainText(WebSiteConstants.TENGRI_MAIN.getLabel() + url);
+                List<Comment> comments = fetchComments(WebSiteConstants.TENGRI_MAIN.getLabel() + url);
+                List<String> tags = fetchTags(WebSiteConstants.TENGRI_MAIN.getLabel() + url);
+                LocalDateTime publicationDate = fetchDate(WebSiteConstants.TENGRI_MAIN.getLabel() + url);
 
                 News news = new News();
                 news.setTitle(title);
@@ -82,7 +79,7 @@ public class TengriServiceImpl implements TengriService {
     public Elements allNewsElements() {
         try {
 
-            Document doc = Jsoup.connect(WebSiteConstants.TENGRI.getLabel()).get();
+            Document doc = connectToWebPage(WebSiteConstants.TENGRI_NEWS.getLabel());
 
             return doc.select(".content_main_item");
         } catch (IOException e) {
@@ -94,7 +91,7 @@ public class TengriServiceImpl implements TengriService {
     @Override
     public String fetchMainText(String articleUrl) {
         try {
-            Document articleDoc = Jsoup.connect(articleUrl).get();
+            Document articleDoc = connectToWebPage(articleUrl);
 
             Element mainTextElement = articleDoc.select(".content_main_text").first();
             if (mainTextElement != null) {
@@ -123,7 +120,7 @@ public class TengriServiceImpl implements TengriService {
             int attempts = 0;
 
             wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//div[contains(@class,'tn-comment-item')]")));
+                    By.xpath("//div[contains(@class,'tn-comment-item')]")));
 
             while (attempts < maxAttempts) {
                 try {
@@ -137,21 +134,31 @@ public class TengriServiceImpl implements TengriService {
             }
 
             List<WebElement> commentElements = driver.findElements(
-                By.xpath("//div[@class='tn-comment-item']"));
+                    By.xpath("//div[@class='tn-comment-item']"));
 
             for (WebElement commentElement : commentElements) {
                 String author = commentElement.findElement(
-                    By.xpath(".//a[@class='tn-user-name']")).getText().trim();
+                        By.xpath(".//a[@class='tn-user-name']")).getText().trim();
                 String content = commentElement.findElement(
-                    By.xpath(".//div[contains(@class,'tn-comment-item-content-text')]")).getText().trim();
+                        By.xpath(".//div[contains(@class,'tn-comment-item-content-text')]")).getText().trim();
                 String time = commentElement.findElement(
-                    By.xpath(".//time")).getText().trim();
+                        By.xpath(".//time")).getText().trim();
 
+                int rating;
+                try {
+                    WebElement ratingElement = commentElement.findElement(
+                            By.xpath(".//span[contains(@class, 'tn-comment-rating-button')]/span"));
+                    String ratingText = ratingElement.getText().trim();
+                    rating = Integer.parseInt(ratingText);
+                } catch (Exception e) {
+                    rating = 0;
+                }
                 if (!author.isEmpty() && !content.isEmpty()) {
                     Comment comment = new Comment();
                     comment.setAuthor(author);
                     comment.setContent(content);
                     comment.setTime(time);
+                    comment.setLikes(rating);
                     uniqueComments.add(comment);
                 }
             }
@@ -169,7 +176,7 @@ public class TengriServiceImpl implements TengriService {
     public List<String> fetchTags(String articleUrl) {
         List<String> tagList = new ArrayList<>();
         try {
-            Document articleDoc = Jsoup.connect(articleUrl).get();
+            Document articleDoc = connectToWebPage(articleUrl);
 
             Elements tagElements = articleDoc.select("#comm.content_main_text_tags a");
 
@@ -185,17 +192,24 @@ public class TengriServiceImpl implements TengriService {
     @Override
     public LocalDateTime fetchDate(String articleUrl) {
         try {
-            Document doc = Jsoup.connect(articleUrl).get();
+            Document doc = connectToWebPage(articleUrl);
 
             Element dateTimeElement = doc.select("div.date-time").first();
             String dateTimeString = "";
             if (dateTimeElement != null) {
-                 dateTimeString = dateTimeElement.text();
+                dateTimeString = dateTimeElement.text();
             }
-            return dateUtil.parseDateTime(dateTimeString);
+            return dateUtil.parseTengriTime(dateTimeString);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @Override
+    public Document connectToWebPage(String url) throws IOException {
+        return Jsoup.connect(url)
+                .userAgent("Chrome")
+                .header("Accept-Language", "en-US,en;q=0.9")
+                .get();
     }
 }
