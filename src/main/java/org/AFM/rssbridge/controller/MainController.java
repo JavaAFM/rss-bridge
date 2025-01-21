@@ -2,9 +2,7 @@ package org.AFM.rssbridge.controller;
 
 import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.model.News;
-import org.AFM.rssbridge.service.AzattyqService;
-import org.AFM.rssbridge.service.KazTagService;
-import org.AFM.rssbridge.service.TengriService;
+import org.AFM.rssbridge.service.*;
 import org.jsoup.select.Elements;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +16,8 @@ public class MainController {
     private final TengriService tengriService;
     private final KazTagService kaztagService;
     private final AzattyqService azattyqService;
+    private final OrdaService ordaService;
+    private final ZakonService zakonService;
 
     @GetMapping("/tengri")
     public ResponseEntity<List<News>> getTengriNews(){
@@ -35,5 +35,17 @@ public class MainController {
     public ResponseEntity<List<News>> getAzattyqNews(){
         Elements elements = azattyqService.allNewsElements();
         return ResponseEntity.ok(azattyqService.toNews(elements));
+    }
+
+    @GetMapping("/zakon")
+    public ResponseEntity<List<News>> getZakonNews(){
+        Elements elements = zakonService.allNewsElements();
+        return ResponseEntity.ok(zakonService.toNews(elements));
+    }
+
+    @GetMapping("/orda")
+    public ResponseEntity<List<News>> getOrdaNews(){
+        Elements elements = ordaService.allNewsElements();
+        return ResponseEntity.ok(ordaService.toNews(elements));
     }
 }

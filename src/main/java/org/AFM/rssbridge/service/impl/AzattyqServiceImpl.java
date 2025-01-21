@@ -9,6 +9,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,6 +23,8 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class AzattyqServiceImpl implements AzattyqService {
+    private final WebDriver driver;
+    private final WebDriverWait wait;
     private final DateTimeFormatterUtil dateUtil;
 
     @Override
@@ -55,14 +61,56 @@ public class AzattyqServiceImpl implements AzattyqService {
 
     @Override
     public Elements allNewsElements() {
+        Elements allNews = new Elements();
+        boolean keepLoading = true;
+
         try {
-            Document doc = connectToWebPage(WebSiteConstants.AZATTYQ_NEWS.getLabel());
-            return doc.select(".row ul > li");
-        } catch (IOException e) {
+            driver.get(WebSiteConstants.AZATTYQ_NEWS.getLabel());
+
+            while (keepLoading) {
+                WebElement newsContainer = wait.until(driver -> driver.findElement(By.id("ordinaryItems")));
+
+                List<WebElement> newsItems = newsContainer.findElements(By.cssSelector("li"));
+
+                for (WebElement newsItem : newsItems) {
+                    WebElement dateElement = newsItem.findElement(By.cssSelector(".date"));
+                    String dateText = dateElement.getText();
+
+                    LocalDateTime articleDate = dateUtil.parseAzattyqTime(dateText);
+
+                    if (articleDate.isBefore(LocalDateTime.now().minusDays(5))) {
+                        keepLoading = false;
+                        break;
+                    }
+
+                    String outerHtml = newsItem.getAttribute("outerHTML");
+                    allNews.add(Jsoup.parse(outerHtml).body().child(0));
+                }
+
+                List<WebElement> loadMoreButtons = driver.findElements(By.cssSelector(".btn--load-more"));
+                if (!loadMoreButtons.isEmpty() && keepLoading) {
+                    loadMoreButtons.get(0).click();
+                    System.out.println("Load More button clicked.");
+
+
+                    int previousCount = newsItems.size();
+                    wait.until(driver -> newsContainer.findElements(By.cssSelector("li")).size() > previousCount);
+                    System.out.println("New news items loaded.");
+                } else {
+                    keepLoading = false;
+                    System.out.println("No more news to load or 5-day condition reached.");
+                }
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             return new Elements();
+        }finally {
+            driver.quit();
         }
+
+        return allNews;
     }
+
 
     @Override
     public String fetchMainText(String articleUrl) {
@@ -106,6 +154,7 @@ public class AzattyqServiceImpl implements AzattyqService {
         return Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
                 .header("Accept-Language", "en-US,en;q=0.9")
+                .timeout(60000)
                 .get();
     }
 }

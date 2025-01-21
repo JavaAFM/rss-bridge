@@ -32,6 +32,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class TengriServiceImpl implements TengriService {
     private final DateTimeFormatterUtil dateUtil;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
 
     @Override
@@ -77,16 +79,48 @@ public class TengriServiceImpl implements TengriService {
 
     @Override
     public Elements allNewsElements() {
+        Elements allNews = new Elements();
+        boolean keepLoading = true;
+
         try {
+            driver.get(WebSiteConstants.TENGRI_NEWS.getLabel());
 
-            Document doc = connectToWebPage(WebSiteConstants.TENGRI_NEWS.getLabel());
+            while (keepLoading) {
+                List<WebElement> newsItems = wait.until(driver -> driver.findElements(By.cssSelector(".content_main_item")));
 
-            return doc.select(".content_main_item");
-        } catch (IOException e) {
+                for (WebElement newsItem : newsItems) {
+                    WebElement dateElement = newsItem.findElement(By.cssSelector(".content_main_item_meta > span:first-child"));
+                    String dateText = dateElement.getText();
+                    LocalDateTime articleDate = dateUtil.parseTengriTime(dateText);
+
+                    if (articleDate.isBefore(LocalDateTime.now().minusDays(5))) {
+                        keepLoading = false;
+                        break;
+                    }
+
+                    String outerHtml = newsItem.getAttribute("outerHTML");
+                    allNews.add(Jsoup.parse(outerHtml).body().child(0));
+                }
+
+                    List<WebElement> nextPageButtons = driver.findElements(By.cssSelector(".page-item .page-link"));
+                if (!nextPageButtons.isEmpty() && keepLoading) {
+                    nextPageButtons.get(nextPageButtons.size()-1).click();
+                    System.out.println("Next page button clicked.");
+                } else {
+                    keepLoading = false;
+                    System.out.println("No more news to load or 5-day condition reached.");
+                }
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             return new Elements();
+        }finally {
+            driver.quit();
         }
+
+        return allNews;
     }
+
 
     @Override
     public String fetchMainText(String articleUrl) {
@@ -108,9 +142,6 @@ public class TengriServiceImpl implements TengriService {
 
     public List<Comment> fetchComments(String url) {
         Set<Comment> uniqueComments = new HashSet<>();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
-        WebDriver driver = new ChromeDriver(options);
 
         try {
             driver.get(url);
@@ -134,7 +165,7 @@ public class TengriServiceImpl implements TengriService {
             }
 
             List<WebElement> commentElements = driver.findElements(
-                    By.xpath("//div[@class='tn-comment-item']"));
+                    By.xpath("//div[@class='tn-com ament-item']"));
 
             for (WebElement commentElement : commentElements) {
                 String author = commentElement.findElement(
