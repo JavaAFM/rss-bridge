@@ -2,12 +2,12 @@ package org.AFM.rssbridge.uitl;
 
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 import java.util.Map;
 
@@ -105,12 +105,34 @@ public class DateTimeFormatterUtil {
 
     public LocalDateTime parseOrdaTime(String input) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", new Locale("ru"));
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm", new Locale("ru"));
 
-            LocalDate date = LocalDate.parse(input, formatter);
+            if (input.startsWith(TODAY)) {
+                String timePart = input.replace(TODAY, "").trim();
+                LocalTime time = LocalTime.parse(timePart, timeFormatter);
+                return LocalDate.now().atTime(time);
+            }
 
-            return date.atStartOfDay();
-        } catch (DateTimeParseException e) {
+            if (input.startsWith(YESTERDAY)) {
+                String timePart = input.replace(YESTERDAY, "").trim();
+                LocalTime time = LocalTime.parse(timePart, timeFormatter);
+                return LocalDate.now().minusDays(1).atTime(time);
+            }
+
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM HH:mm", new Locale("ru"));
+            TemporalAccessor parsedDate = dateTimeFormatter.parse(input);
+            int day = parsedDate.get(ChronoField.DAY_OF_MONTH);
+            Month month = Month.of(parsedDate.get(ChronoField.MONTH_OF_YEAR));
+            int hour = parsedDate.get(ChronoField.HOUR_OF_DAY);
+            int minute = parsedDate.get(ChronoField.MINUTE_OF_HOUR);
+
+            int currentYear = LocalDate.now().getYear();
+            LocalDate date = LocalDate.of(currentYear, month, day);
+            LocalTime time = LocalTime.of(hour, minute);
+
+            return LocalDateTime.of(date, time);
+
+        } catch (DateTimeException e) {
             throw new RuntimeException("Failed to parse date-time string: " + input, e);
         }
     }
