@@ -8,4 +8,5 @@ public interface OrdaService extends WebSiteScrapper {
     List<String> fetchTags(String url);
     LocalDateTime fetchDate(String url);
     String fetchImage(String url);
+    void acceptCookie();
 }

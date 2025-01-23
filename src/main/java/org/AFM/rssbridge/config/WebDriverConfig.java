@@ -21,7 +21,7 @@ public class WebDriverConfig {
     public WebDriver webDriver() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
-        /*options.addArguments("--start-maximized");
+        options.addArguments("--start-maximized");
         options.addArguments("--disable-blink-features=AutomationControlled");
         options.setExperimentalOption("excludeSwitches", List.of("enable-automation"));
         options.setExperimentalOption("useAutomationExtension", false);
@@ -29,7 +29,7 @@ public class WebDriverConfig {
         options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36");
         options.addArguments("--disable-gpu");
         options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");*/
+        options.addArguments("--disable-dev-shm-usage");
 
 
         return new ChromeDriver(options);
