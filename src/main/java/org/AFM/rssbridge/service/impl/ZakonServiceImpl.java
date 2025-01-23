@@ -97,14 +97,53 @@ public class ZakonServiceImpl implements ZakonService {
 
     @Override
     public Elements allNewsElements() {
-        try {
-            Document doc = connectToWebPage(WebSiteConstants.ZAKON_NEWS.getLabel());
+        Elements allNews = new Elements();
+        boolean keepLoading = true;
 
-            return doc.select(".news-item");
-        } catch (IOException e) {
+        try {
+            driver.get(WebSiteConstants.ZAKON_NEWS.getLabel()); // Replace with your target website URL
+
+            while (keepLoading) {
+                // Wait for news items to load
+                List<WebElement> newsItems = wait.until(driver -> driver.findElements(By.cssSelector(".news-item"))); // Update selector
+
+                for (WebElement newsItem : newsItems) {
+                    WebElement dateElement = newsItem.findElement(By.cssSelector(".newscard__date")); // Update selector
+                    String dateText = dateElement.getText();
+                    LocalDateTime articleDate = dateUtil.parseZakonDate(dateText); // Update date parser accordingly
+
+                    // Stop loading if the article date is older than 5 days
+                    if (articleDate.isBefore(LocalDateTime.now().minusDays(5))) {
+                        keepLoading = false;
+                        break;
+                    }
+
+                    String outerHtml = newsItem.getAttribute("outerHTML");
+                    allNews.add(Jsoup.parse(outerHtml).body().child(0));
+                }
+
+                // Scroll to the bottom of the page to trigger infinite loading
+                if (keepLoading) {
+                    ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight);");
+                    System.out.println("Scrolled to the bottom of the page.");
+
+                    // Wait for new content to load
+                    Thread.sleep(2000); // Adjust time as needed
+
+                    // Check if new content is loaded
+                    List<WebElement> newNewsItems = driver.findElements(By.cssSelector(".news-item"));
+                    if (newNewsItems.size() == newsItems.size()) {
+                        keepLoading = false;
+                        System.out.println("No new content loaded. Stopping.");
+                    }
+                }
+            }
+        } catch (Exception e) {
             e.printStackTrace();
-            return new Elements();
+            System.out.println("An error occurred during parsing.");
         }
+
+        return allNews;
     }
 
     @Override
