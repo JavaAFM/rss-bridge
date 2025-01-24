@@ -101,19 +101,17 @@ public class ZakonServiceImpl implements ZakonService {
         boolean keepLoading = true;
 
         try {
-            driver.get(WebSiteConstants.ZAKON_NEWS.getLabel()); // Replace with your target website URL
+            driver.get(WebSiteConstants.ZAKON_NEWS.getLabel());
 
             while (keepLoading) {
-                // Wait for news items to load
                 List<WebElement> newsItems = wait.until(driver -> driver.findElements(By.cssSelector(".news-item"))); // Update selector
 
                 for (WebElement newsItem : newsItems) {
-                    WebElement dateElement = newsItem.findElement(By.cssSelector(".newscard__date")); // Update selector
+                    WebElement dateElement = newsItem.findElement(By.cssSelector(".newscard__date"));
                     String dateText = dateElement.getText();
-                    LocalDateTime articleDate = dateUtil.parseZakonDate(dateText); // Update date parser accordingly
+                    LocalDateTime articleDate = dateUtil.parseZakonDate(dateText);
 
-                    // Stop loading if the article date is older than 5 days
-                    if (articleDate.isBefore(LocalDateTime.now().minusDays(5))) {
+                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))) {
                         keepLoading = false;
                         break;
                     }
@@ -122,15 +120,12 @@ public class ZakonServiceImpl implements ZakonService {
                     allNews.add(Jsoup.parse(outerHtml).body().child(0));
                 }
 
-                // Scroll to the bottom of the page to trigger infinite loading
                 if (keepLoading) {
                     ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight);");
                     System.out.println("Scrolled to the bottom of the page.");
 
-                    // Wait for new content to load
-                    Thread.sleep(2000); // Adjust time as needed
+                    Thread.sleep(2000);
 
-                    // Check if new content is loaded
                     List<WebElement> newNewsItems = driver.findElements(By.cssSelector(".news-item"));
                     if (newNewsItems.size() == newsItems.size()) {
                         keepLoading = false;

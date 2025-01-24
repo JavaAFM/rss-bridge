@@ -67,7 +67,7 @@ public class OrdaServiceImpl implements OrdaService {
     public Elements allNewsElements() {
         Elements allNewsElements = new Elements();
         boolean keepLoading = true;
-        int daysFetched = 0;
+        int monthFetched = 0;
 
         try {
             driver.get(WebSiteConstants.ORDA_NEWS.getLabel());
@@ -77,11 +77,11 @@ public class OrdaServiceImpl implements OrdaService {
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
             while (keepLoading) {
-                if (daysFetched >= 40) {
+                if (monthFetched >= 3) {
                     keepLoading = false;
                 }
 
-                String formattedDate = currentDate.minusDays(daysFetched).format(dateFormatter);
+                String formattedDate = currentDate.minusMonths(3).format(dateFormatter);
 
                 String url = WebSiteConstants.ORDA_MAIN.getLabel() + formattedDate + "/";
                 driver.get(url);
@@ -93,7 +93,7 @@ public class OrdaServiceImpl implements OrdaService {
                 allNewsElements.addAll(newsElements);
                 System.out.println("Elements added for: " + formattedDate);
 
-                daysFetched++;
+                monthFetched++;
             }
         } catch (Exception e) {
             e.printStackTrace();
