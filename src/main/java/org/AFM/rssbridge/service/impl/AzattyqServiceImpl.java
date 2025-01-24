@@ -78,7 +78,7 @@ public class AzattyqServiceImpl implements AzattyqService {
 
                     LocalDateTime articleDate = dateUtil.parseAzattyqTime(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusDays(5))) {
+                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))) {
                         keepLoading = false;
                         break;
                     }
