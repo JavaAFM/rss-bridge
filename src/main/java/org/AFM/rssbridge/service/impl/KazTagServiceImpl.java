@@ -11,11 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.devtools.DevTools;
 
-import org.openqa.selenium.devtools.v131.emulation.Emulation;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +19,7 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @AllArgsConstructor
@@ -86,7 +82,7 @@ public class KazTagServiceImpl implements KazTagService {
                     e.printStackTrace();
                     System.out.println("Failed to capture screenshot.");
                 }
-                handleCaptcha();
+                handleCaptcha(driver.getCurrentUrl());
 
                 WebElement newsContainer = wait.until(driver -> driver.findElement(By.cssSelector(".layout-container")));
 
@@ -124,85 +120,11 @@ public class KazTagServiceImpl implements KazTagService {
     }
 
 
-    private void handleCaptcha() {
-        try {
-            String pythonCode = """
-            import sys
-            import requests
-
-            def solve_captcha(api_key, site_key, page_url):
-                # Send request to 2Captcha
-                payload = {
-                    'key': api_key,
-                    'method': 'userrecaptcha',
-                    'googlekey': site_key,
-                    'pageurl': page_url,
-                    'json': 1
-                }
-                response = requests.post('http://2captcha.com/in.php', data=payload)
-                request_result = response.json()
-
-                if request_result.get('status') != 1:
-                    print("Error: Unable to request CAPTCHA solution.")
-                    return None
-
-                # Poll for the solution
-                captcha_id = request_result.get('request')
-                fetch_url = f"http://2captcha.com/res.php?key={api_key}&action=get&id={captcha_id}&json=1"
-                for _ in range(30):  # Wait up to 30 seconds
-                    result = requests.get(fetch_url).json()
-                    if result.get('status') == 1:
-                        return result.get('request')
-                    time.sleep(5)  # Wait for 5 seconds
-
-                print("Error: CAPTCHA solution timeout.")
-                return None
-
-            # Retrieve arguments
-            api_key = sys.argv[1]
-            site_key = sys.argv[2]
-            page_url = sys.argv[3]
-
-            # Solve the CAPTCHA
-            solution = solve_captcha(api_key, site_key, page_url)
-            if solution:
-                print(solution)
-            else:
-                print("Error: Unable to solve CAPTCHA.")
-        """;
-
-            File tempScript = File.createTempFile("captcha_solver", ".py");
-            FileWriter writer = new FileWriter(tempScript);
-            writer.write(pythonCode);
-            writer.close();
-
-            String apiKey = "your_2captcha_api_key";
-            String siteKey = driver.findElement(By.cssSelector("iframe[src*='captcha']")).getAttribute("data-sitekey");
-            String pageUrl = driver.getCurrentUrl();
-
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                    "python3", tempScript.getAbsolutePath(), apiKey, siteKey, pageUrl
-            );
-            Process process = processBuilder.start();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String captchaToken = reader.readLine();
-
-            ((JavascriptExecutor) driver).executeScript(
-                    "document.getElementById('g-recaptcha-response').innerHTML='" + captchaToken + "';"
-            );
-
-            WebElement submitButton = driver.findElement(By.id("captcha-form"));
-            submitButton.click();
-
-            System.out.println("CAPTCHA solved and submitted successfully.");
-
-            tempScript.deleteOnExit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Failed to solve CAPTCHA.");
-        }
+    private void handleCaptcha(String url) {
+        // I can't do it(
     }
+
+
 
     @Override
     public String fetchMainText(String articleUrl) {

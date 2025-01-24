@@ -168,8 +168,6 @@ public class ZakonServiceImpl implements ZakonService {
         List<Comment> uniqueComments = new ArrayList<>();
         try {
             driver.get(url);
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
             wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath("//div[@class='zknc zknc-item']")));
 
             List<WebElement> commentElements = driver.findElements(By.xpath("//div[@class='zknc zknc-item']"));

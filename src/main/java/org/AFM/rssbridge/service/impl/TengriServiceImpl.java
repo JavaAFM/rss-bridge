@@ -141,11 +141,10 @@ public class TengriServiceImpl implements TengriService {
 
 
     public List<Comment> fetchComments(String url) {
-        Set<Comment> uniqueComments = new HashSet<>();
+        List<Comment> uniqueComments = new ArrayList<>();
 
         try {
             driver.get(url);
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             JavascriptExecutor js = (JavascriptExecutor) driver;
             int maxAttempts = 5;
             int attempts = 0;
@@ -194,7 +193,7 @@ public class TengriServiceImpl implements TengriService {
                 }
             }
 
-            return new ArrayList<>(uniqueComments);
+            return uniqueComments;
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
