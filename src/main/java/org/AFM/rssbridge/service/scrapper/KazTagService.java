@@ -1,8 +1,4 @@
-package org.AFM.rssbridge.service;
-
-import net.bytebuddy.asm.Advice;
-import org.AFM.rssbridge.model.News;
-import org.jsoup.select.Elements;
+package org.AFM.rssbridge.service.scrapper;
 
 import java.time.LocalDateTime;
 import java.util.List;

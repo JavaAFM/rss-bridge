@@ -1,10 +1,13 @@
-package org.AFM.rssbridge.service.impl;
+package org.AFM.rssbridge.service.scrapper.impl;
 
 import lombok.AllArgsConstructor;
+import org.AFM.rssbridge.exception.NotFoundException;
+import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.Comment;
 import org.AFM.rssbridge.model.News;
-import org.AFM.rssbridge.service.TengriService;
+import org.AFM.rssbridge.service.SourceService;
+import org.AFM.rssbridge.service.scrapper.TengriService;
 import org.AFM.rssbridge.uitl.DateTimeFormatterUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -14,19 +17,14 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -35,11 +33,13 @@ public class TengriServiceImpl implements TengriService {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
+    private final SourceService sourceService;
 
     @Override
-    public List<News> toNews(Elements elements) {
+    public List<News> toNews(Elements elements) throws NotFoundException {
         List<News> newsList = new ArrayList<>();
         System.out.println("THERE ARE " + elements.size() + "ELEMENTS");
+        Source tengri = sourceService.getSourceByName("Tengri");
         for (Element element : elements) {
             try {
                 String title = element.select(".content_main_item_title a").text();
@@ -63,6 +63,7 @@ public class TengriServiceImpl implements TengriService {
                 news.setUrl(url);
                 news.setImage_url(imageUrl);
                 news.setSummary(summary);
+                news.setSource(tengri);
                 news.setPublicationDate(publicationDate);
                 news.setMainText(mainText);
                 news.setComments(comments);

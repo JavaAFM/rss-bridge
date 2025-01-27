@@ -1,9 +1,12 @@
-package org.AFM.rssbridge.service.impl;
+package org.AFM.rssbridge.service.scrapper.impl;
 
 import lombok.AllArgsConstructor;
+import org.AFM.rssbridge.exception.NotFoundException;
+import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.News;
-import org.AFM.rssbridge.service.OrdaService;
+import org.AFM.rssbridge.service.SourceService;
+import org.AFM.rssbridge.service.scrapper.OrdaService;
 import org.AFM.rssbridge.uitl.DateTimeFormatterUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,11 +33,14 @@ public class OrdaServiceImpl implements OrdaService {
     private final WebDriverWait wait;
     private final DateTimeFormatterUtil dateUtil;
 
+    private final SourceService sourceService;
+
 
     @Override
-    public List<News> toNews(Elements elements) {
+    public List<News> toNews(Elements elements) throws NotFoundException {
         List<News> newsList = new ArrayList<>();
         System.out.println("THERE ARE " + elements.size() + " ELEMENTS");
+        Source orda = sourceService.getSourceByName("Orda");
         for (Element element : elements) {
             try {
                 String title = element.select("span").text();
@@ -51,6 +57,8 @@ public class OrdaServiceImpl implements OrdaService {
                 news.setImage_url(WebSiteConstants.ORDA_MAIN.getLabel() + imageUrl);
                 news.setPublicationDate(publicationDate);
                 news.setMainText(mainText);
+                news.setSummary("");
+                news.setSource(orda);
                 news.setComments(null);
                 news.setTags(tags);
 

@@ -1,9 +1,12 @@
-package org.AFM.rssbridge.service.impl;
+package org.AFM.rssbridge.service.scrapper.impl;
 
 import lombok.AllArgsConstructor;
+import org.AFM.rssbridge.exception.NotFoundException;
+import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.News;
-import org.AFM.rssbridge.service.AzattyqService;
+import org.AFM.rssbridge.service.SourceService;
+import org.AFM.rssbridge.service.scrapper.AzattyqService;
 import org.AFM.rssbridge.uitl.DateTimeFormatterUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,10 +30,13 @@ public class AzattyqServiceImpl implements AzattyqService {
     private final WebDriverWait wait;
     private final DateTimeFormatterUtil dateUtil;
 
+    private final SourceService sourceService;
+
     @Override
-    public List<News> toNews(Elements elements) {
+    public List<News> toNews(Elements elements) throws NotFoundException {
         List<News> newsList = new ArrayList<>();
         System.out.println("THERE ARE " + elements.size() + " ELEMENTS");
+        Source azattyq = sourceService.getSourceByName("Azattyq");
         for (Element element : elements) {
             try {
                 String title = element.select(".media-block__title").text();
@@ -48,6 +54,7 @@ public class AzattyqServiceImpl implements AzattyqService {
                 news.setImage_url(imageUrl);
                 news.setMainText(mainText);
                 news.setSummary("");
+                news.setSource(azattyq);
                 news.setPublicationDate(publicationDate);
 
                 newsList.add(news);

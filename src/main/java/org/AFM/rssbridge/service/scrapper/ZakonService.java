@@ -1,4 +1,4 @@
-package org.AFM.rssbridge.service;
+package org.AFM.rssbridge.service.scrapper;
 
 import org.AFM.rssbridge.model.Comment;
 
