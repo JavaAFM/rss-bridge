@@ -94,7 +94,7 @@ public class TengriServiceImpl implements TengriService {
                     String dateText = dateElement.getText();
                     LocalDateTime articleDate = dateUtil.parseTengriTime(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))) {
+                    if (articleDate.isBefore(LocalDateTime.now().minusDays(1))) {
                         keepLoading = false;
                         break;
                     }

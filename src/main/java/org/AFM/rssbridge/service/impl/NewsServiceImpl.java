@@ -8,6 +8,7 @@ import org.AFM.rssbridge.repository.NewsRepository;
 import org.AFM.rssbridge.service.NewsService;
 import org.AFM.rssbridge.service.SourceService;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -26,5 +27,15 @@ public class NewsServiceImpl implements NewsService {
     public List<News> getAllNewsFromSource(String targetSource) throws NotFoundException {
         Source source = sourceService.getSourceByName(targetSource);
         return newsRepository.getNewsBySource(source);
+    }
+
+    public boolean findByTitle(String title) {
+        Optional<News> optionalNews = newsRepository.findByTitle(title);
+
+        if (optionalNews.isPresent()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

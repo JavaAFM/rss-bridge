@@ -5,10 +5,10 @@ CREATE TABLE  IF NOT EXISTS sources (
 
 CREATE TABLE  IF NOT EXISTS news (
     id bigserial PRIMARY KEY,
-    title VARCHAR(255),
-    url VARCHAR(255),
+    title TEXT,
+    url VARCHAR(10485760),
     source_id BIGINT NOT NULL,
-    image_url VARCHAR(255),
+    image_url VARCHAR(10485760),
     summary TEXT,
     main_text TEXT,
     publication_date TIMESTAMP,
@@ -17,8 +17,8 @@ CREATE TABLE  IF NOT EXISTS news (
 
 CREATE TABLE  IF NOT EXISTS comments (
     id bigserial PRIMARY KEY,
-    author VARCHAR(255),
-    publication_time VARCHAR(255),
+    author VARCHAR(10485760),
+    publication_time VARCHAR(10485760),
     likes INT default 0,
     content TEXT,
     news_id BIGINT,
@@ -27,13 +27,13 @@ CREATE TABLE  IF NOT EXISTS comments (
 
 CREATE TABLE  IF NOT EXISTS main_tags (
     id bigserial PRIMARY KEY,
-    group_name VARCHAR(255),
-    main_tag_name VARCHAR(255)
+    group_name VARCHAR(10485760),
+    main_tag_name VARCHAR(10485760)
 );
 
 CREATE TABLE  IF NOT EXISTS news_tags (
     news_id BIGINT,
-    tag VARCHAR(255),
+    tag VARCHAR(10485760),
     PRIMARY KEY (news_id, tag),
     CONSTRAINT FK_news_tags_news FOREIGN KEY (news_id) REFERENCES news (id)
 );
