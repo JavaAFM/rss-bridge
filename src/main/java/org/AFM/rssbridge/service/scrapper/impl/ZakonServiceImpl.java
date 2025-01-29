@@ -6,6 +6,7 @@ import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.Comment;
 import org.AFM.rssbridge.model.News;
+import org.AFM.rssbridge.repository.NewsRepository;
 import org.AFM.rssbridge.service.SourceService;
 import org.AFM.rssbridge.service.scrapper.ZakonService;
 import org.AFM.rssbridge.uitl.DateTimeFormatterUtil;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor

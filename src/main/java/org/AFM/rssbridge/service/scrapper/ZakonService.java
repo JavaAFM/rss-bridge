@@ -1,6 +1,7 @@
 package org.AFM.rssbridge.service.scrapper;
 
 import org.AFM.rssbridge.model.Comment;
+import org.AFM.rssbridge.model.News;
 
 import java.time.LocalDateTime;
 import java.util.List;

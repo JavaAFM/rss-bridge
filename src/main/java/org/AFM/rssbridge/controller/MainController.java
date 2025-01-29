@@ -24,22 +24,14 @@ public class MainController {
     private final OrdaService ordaService;
     private final ZakonService zakonService;
     private final NewsRepository newsRepository;
+    private final UpdateDBService updateDBService;
 
     @Scheduled(fixedRate = 120000)
     @GetMapping("/tengri")
     public ResponseEntity<List<News>> getTengriNews() throws NotFoundException {
         Elements elements = tengriService.allNewsElements();
         List<News> parsedNews = tengriService.toNews(elements);
-        for (News news : parsedNews) {
-            Optional<News> existingNews = newsRepository.findByTitle(news.getTitle());
-            if (existingNews.isPresent()) {
-                System.out.println("Article already exists: " + news.getTitle());
-                continue;
-            } else {
-                System.out.println("New article saved: " + news.getTitle());
-                newsRepository.save(news);
-            }
-        }
+        updateDBService.UpdateDB(parsedNews);
         return ResponseEntity.ok(tengriService.toNews(elements));
     }
 
@@ -48,16 +40,7 @@ public class MainController {
     public ResponseEntity<List<News>> getKaztagNews() throws NotFoundException {
         Elements elements = kaztagService.allNewsElements();
         List<News> parsedNews = kaztagService.toNews(elements);
-        for (News news : parsedNews) {
-            Optional<News> existingNews = newsRepository.findByTitle(news.getTitle());
-            if (existingNews.isPresent()) {
-                System.out.println("Article already exists: " + news.getTitle());
-                continue;
-            } else {
-                System.out.println("New article saved: " + news.getTitle());
-                newsRepository.save(news);
-            }
-        }
+        updateDBService.UpdateDB(parsedNews);
         return ResponseEntity.ok(kaztagService.toNews(elements));
     }
 
@@ -66,16 +49,7 @@ public class MainController {
     public ResponseEntity<List<News>> getAzattyqNews() throws NotFoundException {
         Elements elements = azattyqService.allNewsElements();
         List<News> parsedNews = azattyqService.toNews(elements);
-        for (News news : parsedNews) {
-            Optional<News> existingNews = newsRepository.findByTitle(news.getTitle());
-            if (existingNews.isPresent()) {
-                System.out.println("Article already exists: " + news.getTitle());
-                continue;
-            } else {
-                System.out.println("New article saved: " + news.getTitle());
-                newsRepository.save(news);
-            }
-        }
+        updateDBService.UpdateDB(parsedNews);
         return ResponseEntity.ok(azattyqService.toNews(elements));
     }
 
@@ -84,16 +58,7 @@ public class MainController {
     public ResponseEntity<List<News>> getZakonNews() throws NotFoundException {
         Elements elements = zakonService.allNewsElements();
         List<News> parsedNews = zakonService.toNews(elements);
-        for (News news : parsedNews) {
-            Optional<News> existingNews = newsRepository.findByTitle(news.getTitle());
-            if (existingNews.isPresent()) {
-                System.out.println("Article already exists: " + news.getTitle());
-                continue;
-            } else {
-                System.out.println("New article saved: " + news.getTitle());
-                newsRepository.save(news);
-            }
-        }
+        updateDBService.UpdateDB(parsedNews);
         return ResponseEntity.ok(zakonService.toNews(elements));
     }
 
@@ -102,16 +67,7 @@ public class MainController {
     public ResponseEntity<List<News>> getOrdaNews() throws NotFoundException {
         Elements elements = ordaService.allNewsElements();
         List<News> parsedNews = ordaService.toNews(elements);
-        for (News news : parsedNews) {
-            Optional<News> existingNews = newsRepository.findByTitle(news.getTitle());
-            if (existingNews.isPresent()) {
-                System.out.println("Article already exists: " + news.getTitle());
-                continue;
-            } else {
-                System.out.println("New article saved: " + news.getTitle());
-                newsRepository.save(news);
-            }
-        }
+        updateDBService.UpdateDB(parsedNews);
         return ResponseEntity.ok(ordaService.toNews(elements));
     }
 

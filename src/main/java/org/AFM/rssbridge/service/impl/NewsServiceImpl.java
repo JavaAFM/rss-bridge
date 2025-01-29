@@ -28,14 +28,4 @@ public class NewsServiceImpl implements NewsService {
         Source source = sourceService.getSourceByName(targetSource);
         return newsRepository.getNewsBySource(source);
     }
-
-    public boolean findByTitle(String title) {
-        Optional<News> optionalNews = newsRepository.findByTitle(title);
-
-        if (optionalNews.isPresent()) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 }
