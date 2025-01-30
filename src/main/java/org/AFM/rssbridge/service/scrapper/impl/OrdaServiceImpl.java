@@ -49,12 +49,10 @@ public class OrdaServiceImpl implements OrdaService {
                 String mainText = fetchMainText(WebSiteConstants.ORDA_MAIN.getLabel() + url);
                 List<String> tags = fetchTags(WebSiteConstants.ORDA_MAIN.getLabel() + url);
                 LocalDateTime publicationDate = fetchDate(WebSiteConstants.ORDA_MAIN.getLabel() + url);
-                String imageUrl = fetchImage(WebSiteConstants.ORDA_MAIN.getLabel() + url);
 
                 News news = new News();
                 news.setTitle(title);
                 news.setUrl(WebSiteConstants.ORDA_MAIN.getLabel() + url);
-                news.setImage_url(WebSiteConstants.ORDA_MAIN.getLabel() + imageUrl);
                 news.setPublicationDate(publicationDate);
                 news.setMainText(mainText);
                 news.setSummary("");
@@ -165,23 +163,6 @@ public class OrdaServiceImpl implements OrdaService {
             return dateUtil.parseOrdaTime(dateTimeString);
         } catch (IOException e) {
             throw new RuntimeException("Failed to fetch or parse date from the article URL", e);
-        }
-    }
-
-
-    @Override
-    public String fetchImage(String url) {
-        try {
-            Document doc = connectToWebPage(url);
-            Element imageElement = doc.select("div.postpic img").first();
-
-            if (imageElement != null) {
-                return imageElement.attr("src");
-            } else {
-                return "";
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

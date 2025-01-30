@@ -48,11 +48,6 @@ public class ZakonServiceImpl implements ZakonService {
 
                 String url = element.select(".newscard_link").attr("href");
 
-                String imageUrl = element.select(".newscard__image").attr("src");
-                if (imageUrl.isEmpty()) {
-                    imageUrl = "";
-                }
-
 
                 String mainText = fetchMainText(WebSiteConstants.ZAKON_MAIN.getLabel() + url);
                 List<Comment> comments = fetchComments(WebSiteConstants.ZAKON_MAIN.getLabel() + url);
@@ -65,7 +60,6 @@ public class ZakonServiceImpl implements ZakonService {
                 news.setSummary(summary);
                 news.setSource(zakon);
                 news.setUrl(WebSiteConstants.ZAKON_MAIN.getLabel() + url);
-                news.setImage_url(imageUrl);
                 news.setPublicationDate(publicationDate);
                 news.setMainText(mainText);
                 news.setComments(comments);

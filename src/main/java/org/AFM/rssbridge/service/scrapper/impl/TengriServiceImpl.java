@@ -46,11 +46,6 @@ public class TengriServiceImpl implements TengriService {
 
                 String url = element.select(".content_main_item_title a").attr("href");
 
-                String imageUrl = element.select("img").attr("src");
-                if (imageUrl.isEmpty()) {
-                    imageUrl = "";
-                }
-
                 String summary = element.select(".content_main_item_announce").text();
 
                 String mainText = fetchMainText(WebSiteConstants.TENGRI_MAIN.getLabel() + url);
@@ -61,7 +56,6 @@ public class TengriServiceImpl implements TengriService {
                 News news = new News();
                 news.setTitle(title);
                 news.setUrl(url);
-                news.setImage_url(imageUrl);
                 news.setSummary(summary);
                 news.setSource(tengri);
                 news.setPublicationDate(publicationDate);

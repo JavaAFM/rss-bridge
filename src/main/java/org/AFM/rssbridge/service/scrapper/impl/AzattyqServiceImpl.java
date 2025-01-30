@@ -41,17 +41,12 @@ public class AzattyqServiceImpl implements AzattyqService {
             try {
                 String title = element.select(".media-block__title").text();
                 String url = element.select("a[href]").attr("href");
-                String imageUrl = element.select(".thumb img").attr("src");
-                if (imageUrl.isEmpty()) {
-                    imageUrl = "";
-                }
                 String mainText = fetchMainText(WebSiteConstants.AZATTYQ_MAIN.getLabel() + url);
                 LocalDateTime publicationDate = fetchDate(WebSiteConstants.AZATTYQ_MAIN.getLabel()+ url);
 
                 News news = new News();
                 news.setTitle(title);
                 news.setUrl(WebSiteConstants.AZATTYQ_MAIN.getLabel() + url);
-                news.setImage_url(imageUrl);
                 news.setMainText(mainText);
                 news.setSummary("");
                 news.setSource(azattyq);
