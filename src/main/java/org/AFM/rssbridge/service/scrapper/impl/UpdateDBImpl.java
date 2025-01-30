@@ -1,15 +1,12 @@
 package org.AFM.rssbridge.service.scrapper.impl;
 
 import lombok.AllArgsConstructor;
-import org.AFM.rssbridge.exception.NotFoundException;
 import org.AFM.rssbridge.model.News;
 import org.AFM.rssbridge.repository.NewsRepository;
 import org.AFM.rssbridge.service.scrapper.UpdateDBService;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,26 +21,16 @@ public class UpdateDBImpl implements UpdateDBService {
             Optional<News> existingNews = newsRepository.findByTitle(news.getTitle());
             if (existingNews.isPresent()) {
                 System.out.println("Article already exists: " + news.getTitle());
-                continue;
             } else {
                 System.out.println("New article saved: " + news.getTitle());
                 newsRepository.save(news);
             }
         }
-    }
-
-    @Override
-    public List<News> toNews(Elements elements) throws NotFoundException {
-        return List.of();
-    }
-
-    @Override
-    public Elements allNewsElements() {
-        return null;
-    }
-
-    @Override
-    public Document connectToWebPage(String url) throws IOException {
-        return null;
+        List<News> savedNews = newsRepository.findAll();
+        for (News news : savedNews) {
+            if (news.getPublicationDate().isBefore(LocalDateTime.now().minusMonths(3))){
+                newsRepository.delete(news);
+            }
+        }
     }
 }

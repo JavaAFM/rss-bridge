@@ -2,7 +2,6 @@ package org.AFM.rssbridge.controller;
 
 import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.exception.NotFoundException;
-import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.model.News;
 import org.AFM.rssbridge.repository.NewsRepository;
 import org.AFM.rssbridge.service.scrapper.*;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -23,7 +21,6 @@ public class MainController {
     private final AzattyqService azattyqService;
     private final OrdaService ordaService;
     private final ZakonService zakonService;
-    private final NewsRepository newsRepository;
     private final UpdateDBService updateDBService;
 
     @Scheduled(fixedRate = 120000)
