@@ -33,13 +33,13 @@ public class DateTimeFormatterUtil {
                 return date.atStartOfDay();
             }
             if (input.startsWith(YESTERDAY)) {
-                String timePart = input.split("\\|")[1].trim();
+                String timePart = input.split(",")[1].trim();
                 LocalTime time = LocalTime.parse(timePart, DateTimeFormatter.ofPattern("HH:mm"));
                 LocalDate yesterday = LocalDate.now().minusDays(1);
 
                 return LocalDateTime.of(yesterday, time);
             } else {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy | HH:mm");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm");
 
                 return LocalDateTime.parse(input, formatter);
             }

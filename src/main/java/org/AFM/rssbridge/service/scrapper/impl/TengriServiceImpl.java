@@ -219,7 +219,7 @@ public class TengriServiceImpl implements TengriService {
         try {
             Document doc = connectToWebPage(articleUrl);
 
-            Element dateTimeElement = doc.select("div.date-time").first();
+            Element dateTimeElement = doc.select("ol.date-time li").last();
             String dateTimeString = "";
             if (dateTimeElement != null) {
                 dateTimeString = dateTimeElement.text();
