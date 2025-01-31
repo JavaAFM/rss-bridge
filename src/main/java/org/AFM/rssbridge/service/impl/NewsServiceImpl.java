@@ -8,6 +8,7 @@ import org.AFM.rssbridge.repository.NewsRepository;
 import org.AFM.rssbridge.service.NewsService;
 import org.AFM.rssbridge.service.SourceService;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 import java.util.List;
 

@@ -42,10 +42,6 @@ public class KazTagServiceImpl implements KazTagService {
                 String title = element.select(".post-title").text();
 
                 String url = element.select(".post-title a").attr("href");
-                String imageUrl = element.select(".featured-image img").attr("src");
-                if (imageUrl.isEmpty()) {
-                    imageUrl = "";
-                }
                 String mainText = fetchMainText(WebSiteConstants.KAZTAG_MAIN.getLabel() + url);
                 List<String> tags = fetchTags(WebSiteConstants.KAZTAG_MAIN.getLabel() + url);
 
@@ -53,7 +49,6 @@ public class KazTagServiceImpl implements KazTagService {
                 News news = new News();
                 news.setTitle(title);
                 news.setUrl(WebSiteConstants.KAZTAG_MAIN.getLabel() + url);
-                news.setImage_url(WebSiteConstants.KAZTAG_MAIN.getLabel() + imageUrl);
                 news.setSummary("");
                 news.setSource(kaztag);
                 news.setPublicationDate(publicationDate);

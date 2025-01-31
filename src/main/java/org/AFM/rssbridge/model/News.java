@@ -27,8 +27,6 @@ public class News {
     @JoinColumn(name = "source_id", nullable = false)
     private Source source;
 
-    private String image_url;
-
     private String summary;
 
     @ElementCollection
