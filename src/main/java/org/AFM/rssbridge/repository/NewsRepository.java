@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface NewsRepository extends JpaRepository<News, Long>, JpaSpecificationExecutor<News> {
     Page<News> findAll(Pageable pageable);
+    Optional<News> findByTitle(String title);
 
     Page<News> getNewsBySource(Source source, Pageable pageable);
 
