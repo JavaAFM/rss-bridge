@@ -15,6 +15,12 @@ public class Source {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "source_name")
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "type")
+    private String type;
+
+    @Column(name = "link")
+    private String link;
 }

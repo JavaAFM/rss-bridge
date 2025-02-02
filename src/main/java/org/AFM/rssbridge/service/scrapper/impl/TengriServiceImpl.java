@@ -2,6 +2,7 @@ package org.AFM.rssbridge.service.scrapper.impl;
 
 import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.exception.NotFoundException;
+import org.AFM.rssbridge.mapper.TagMapper;
 import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.Comment;
@@ -33,6 +34,7 @@ public class TengriServiceImpl implements TengriService {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
+    private final TagMapper tagMapper;
     private final SourceService sourceService;
 
     @Override
@@ -61,7 +63,7 @@ public class TengriServiceImpl implements TengriService {
                 news.setPublicationDate(publicationDate);
                 news.setMainText(mainText);
                 news.setComments(comments);
-                news.setTags(tags);
+                news.setTags(tagMapper.toListOfTags(tags, news));
 
                 newsList.add(news);
             } catch (Exception e) {
@@ -109,8 +111,6 @@ public class TengriServiceImpl implements TengriService {
         } catch (Exception e) {
             e.printStackTrace();
             return new Elements();
-        }finally {
-            driver.quit();
         }
 
         return allNews;
@@ -192,8 +192,6 @@ public class TengriServiceImpl implements TengriService {
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
-        } finally {
-            driver.quit();
         }
     }
 

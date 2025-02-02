@@ -2,6 +2,7 @@ package org.AFM.rssbridge.service.scrapper.impl;
 
 import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.exception.NotFoundException;
+import org.AFM.rssbridge.mapper.TagMapper;
 import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.News;
@@ -33,6 +34,7 @@ public class OrdaServiceImpl implements OrdaService {
     private final WebDriverWait wait;
     private final DateTimeFormatterUtil dateUtil;
 
+    private final TagMapper tagMapper;
     private final SourceService sourceService;
 
 
@@ -58,7 +60,7 @@ public class OrdaServiceImpl implements OrdaService {
                 news.setSummary("");
                 news.setSource(orda);
                 news.setComments(null);
-                news.setTags(tags);
+                news.setTags(tagMapper.toListOfTags(tags, news));
 
                 newsList.add(news);
             } catch (Exception e) {
@@ -98,8 +100,6 @@ public class OrdaServiceImpl implements OrdaService {
         } catch (Exception e) {
             e.printStackTrace();
             return new Elements();
-        } finally {
-            driver.quit();
         }
         return allNewsElements;
     }

@@ -1,6 +1,7 @@
 package org.AFM.rssbridge.controller;
 
 import lombok.AllArgsConstructor;
+import org.AFM.rssbridge.dto.response.SourceDto;
 import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.service.SourceService;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ public class SourceController {
     private final SourceService sourceService;
 
     @GetMapping("/allSources")
-    public ResponseEntity<List<Source>> getAllSources(){
+    public ResponseEntity<List<SourceDto>> getAllSources(){
         return ResponseEntity.ok(sourceService.getAllSources());
     }
 

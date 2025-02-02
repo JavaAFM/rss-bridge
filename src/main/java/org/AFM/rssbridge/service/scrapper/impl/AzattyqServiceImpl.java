@@ -106,8 +106,6 @@ public class AzattyqServiceImpl implements AzattyqService {
         } catch (Exception e) {
             e.printStackTrace();
             return new Elements();
-        }finally {
-            driver.quit();
         }
 
         return allNews;

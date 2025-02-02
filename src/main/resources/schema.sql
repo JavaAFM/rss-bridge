@@ -5,12 +5,12 @@ CREATE TABLE  IF NOT EXISTS sources (
 
 CREATE TABLE  IF NOT EXISTS news (
     id bigserial PRIMARY KEY,
-    title TEXT,
-    url TEXT,
+    news_title TEXT,
+    news_link TEXT,
     source_id BIGINT NOT NULL,
     summary TEXT,
-    main_text TEXT,
-    publication_date TIMESTAMP,
+    news_body TEXT,
+    created_at TIMESTAMP,
     CONSTRAINT FK_news_source FOREIGN KEY (source_id) REFERENCES sources (id)
 );
 

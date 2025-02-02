@@ -2,6 +2,7 @@ package org.AFM.rssbridge.service.scrapper.impl;
 
 import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.exception.NotFoundException;
+import org.AFM.rssbridge.mapper.TagMapper;
 import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.News;
@@ -30,6 +31,7 @@ public class KazTagServiceImpl implements KazTagService {
     private final WebDriverWait wait;
     private final DateTimeFormatterUtil dateUtil;
 
+    private final TagMapper tagMapper;
     private final SourceService sourceService;
 
     @Override
@@ -54,7 +56,7 @@ public class KazTagServiceImpl implements KazTagService {
                 news.setPublicationDate(publicationDate);
                 news.setMainText(mainText);
                 news.setComments(new ArrayList<>());
-                news.setTags(tags);
+                news.setTags(tagMapper.toListOfTags(tags, news));
 
                 newsList.add(news);
             } catch (Exception e) {
