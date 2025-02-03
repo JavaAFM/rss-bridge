@@ -8,7 +8,10 @@ import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.repository.NewsRepository;
 import org.AFM.rssbridge.service.SourceService;
 import org.AFM.rssbridge.service.scrapper.*;
+import org.AFM.rssbridge.uitl.JwtRequestFilter;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +32,7 @@ public class MainController {
     private final ZakonService zakonService;
     private final UpdateDBService updateDBService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainController.class);
     @Scheduled(fixedRate = 120000)
     @GetMapping("/tengri")
     public ResponseEntity<List<News>> getTengriNews() throws NotFoundException {
@@ -87,6 +91,7 @@ public class MainController {
             case "Tengri":
                 elements = tengriService.allNewsElements();
                 parsedNews = tengriService.toNews(elements);
+                LOGGER.warn("Parsed {} news articles from Tengri", parsedNews.size());
                 updateDBService.UpdateDB(parsedNews);
                 break;
             case "Orda":

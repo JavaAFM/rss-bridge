@@ -1,5 +1,6 @@
 package org.AFM.rssbridge.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,13 +33,13 @@ public class News {
     @Column(name = "summary")
     private String summary;
 
-    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<NewsTag> tags;
 
     @Column(name = "news_body")
     private String mainText;
 
-    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comment> comments;
 
     @Column(name = "created_at")

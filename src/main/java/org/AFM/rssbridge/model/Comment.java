@@ -1,5 +1,6 @@
 package org.AFM.rssbridge.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -29,6 +30,7 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "news_id", referencedColumnName = "id")
+    @JsonIgnore
     private News news;
 
     @Override

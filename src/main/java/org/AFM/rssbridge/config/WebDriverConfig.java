@@ -15,7 +15,7 @@ import java.util.Map;
 @Configuration
 public class WebDriverConfig {
 
-    private final int MAX_WAIT = 20;
+    private final int MAX_WAIT = 10;
 
     @Bean
     public WebDriver webDriver() {

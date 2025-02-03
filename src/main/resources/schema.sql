@@ -30,9 +30,10 @@ CREATE TABLE  IF NOT EXISTS main_tags (
     main_tag_name TEXT
 );
 
-CREATE TABLE  IF NOT EXISTS news_tags (
+CREATE TABLE IF NOT EXISTS news_tags (
+    id BIGSERIAL PRIMARY KEY,
     news_id BIGINT,
-    tag TEXT,
-    PRIMARY KEY (news_id, tag),
-    CONSTRAINT FK_news_tags_news FOREIGN KEY (news_id) REFERENCES news (id)
+    tag TEXT NOT NULL,
+    CONSTRAINT FK_news_tags_news FOREIGN KEY (news_id) REFERENCES news (id),
+    UNIQUE (news_id, tag)
 );

@@ -3,6 +3,7 @@ package org.AFM.rssbridge.service.scrapper.impl;
 import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.exception.NotFoundException;
 import org.AFM.rssbridge.mapper.TagMapper;
+import org.AFM.rssbridge.mapper.impl.TagMapperImpl;
 import org.AFM.rssbridge.model.Source;
 import org.AFM.rssbridge.constants.WebSiteConstants;
 import org.AFM.rssbridge.model.Comment;
@@ -20,6 +21,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -36,6 +39,9 @@ public class TengriServiceImpl implements TengriService {
 
     private final TagMapper tagMapper;
     private final SourceService sourceService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagMapperImpl.class);
+
 
     @Override
     public List<News> toNews(Elements elements) throws NotFoundException {
@@ -65,6 +71,9 @@ public class TengriServiceImpl implements TengriService {
                 news.setComments(comments);
                 news.setTags(tagMapper.toListOfTags(tags, news));
 
+                LOGGER.warn("TAGS: "+news.getTags());
+                LOGGER.warn("COMMENTS: " + news.getComments());
+
                 newsList.add(news);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -90,7 +99,7 @@ public class TengriServiceImpl implements TengriService {
                     String dateText = dateElement.getText();
                     LocalDateTime articleDate = dateUtil.parseTengriTime(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))){
+                    if (articleDate.isBefore(LocalDateTime.now().minusDays(1))){
                         keepLoading = false;
                         break;
                     }
@@ -188,6 +197,7 @@ public class TengriServiceImpl implements TengriService {
                 }
             }
 
+            LOGGER.warn("COMMENTS: " + uniqueComments);
             return uniqueComments;
         } catch (Exception e) {
             e.printStackTrace();
