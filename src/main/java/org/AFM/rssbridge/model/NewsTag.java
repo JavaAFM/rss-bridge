@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Set;
+
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
+
 @Getter
 @Setter
 @NoArgsConstructor

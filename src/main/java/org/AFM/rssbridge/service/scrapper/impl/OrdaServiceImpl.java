@@ -57,9 +57,7 @@ public class OrdaServiceImpl implements OrdaService {
                 news.setUrl(WebSiteConstants.ORDA_MAIN.getLabel() + url);
                 news.setPublicationDate(publicationDate);
                 news.setMainText(mainText);
-                news.setSummary("");
                 news.setSource(orda);
-                news.setComments(null);
                 news.setTags(tagMapper.toListOfTags(tags, news));
 
                 newsList.add(news);
@@ -84,7 +82,7 @@ public class OrdaServiceImpl implements OrdaService {
             LocalDate currentDate = LocalDate.now();
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
             while (keepLoading) {
-                if (daysFetched >= 90) {
+                if (daysFetched >= 30) {
                     keepLoading = false;
                 }
                 String formattedDate = currentDate.minusDays(daysFetched).format(dateFormatter);
@@ -118,7 +116,7 @@ public class OrdaServiceImpl implements OrdaService {
             Elements mainTextElements = articleDoc.select("p, blockquote");
             StringBuilder mainText = new StringBuilder();
             for (Element element : mainTextElements) {
-                mainText.append(element.text());
+                mainText.append(element.text()).append(System.lineSeparator());
             }
 
             return mainText.toString();

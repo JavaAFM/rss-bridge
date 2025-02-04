@@ -9,4 +9,6 @@ import java.util.List;
 public interface SourceService {
     List<SourceDto> getAllSources();
     Source getSourceByName(String name) throws NotFoundException;
+    List<String> allTypes();
+    List<String> allNames();
 }

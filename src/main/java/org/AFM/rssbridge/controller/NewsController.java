@@ -2,6 +2,8 @@ package org.AFM.rssbridge.controller;
 
 import lombok.AllArgsConstructor;
 import org.AFM.rssbridge.dto.request.FilterRequest;
+import org.AFM.rssbridge.dto.request.TagRequest;
+import org.AFM.rssbridge.dto.response.ModelResponse;
 import org.AFM.rssbridge.exception.NotFoundException;
 import org.AFM.rssbridge.model.News;
 import org.AFM.rssbridge.service.NewsService;
@@ -10,17 +12,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
 public class NewsController {
     private final NewsService newsService;
+    private final RestTemplate restTemplate;
 
     @GetMapping("/allNews")
     private ResponseEntity<Page<News>> getAllNews(
@@ -41,7 +44,7 @@ public class NewsController {
         return ResponseEntity.ok(newsService.getAllNewsFromSource(source, pageable));
     }
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     private ResponseEntity<Page<News>> filter(
             @RequestBody FilterRequest filterRequest,
             @RequestParam(defaultValue = "0") int page,
@@ -70,6 +73,21 @@ public class NewsController {
         return ResponseEntity.ok(newsService.lastNewsOfSource(source, pageable));
     }
 
+    @PostMapping("/predict")
+    public ResponseEntity<ModelResponse> predict(
+            @RequestBody TagRequest request
+    ) {
+        String fastApiUrl = "http://localhost:8000/predict/";
+
+        ResponseEntity<ModelResponse[]> response = restTemplate.postForEntity(fastApiUrl, request, ModelResponse[].class);
+        ModelResponse[] modelResponseArray = response.getBody();
+
+        if (modelResponseArray != null && modelResponseArray.length > 0) {
+            return ResponseEntity.ok(modelResponseArray[0]);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 
 
 }

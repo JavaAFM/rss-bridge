@@ -40,8 +40,6 @@ public class TengriServiceImpl implements TengriService {
     private final TagMapper tagMapper;
     private final SourceService sourceService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TagMapperImpl.class);
-
 
     @Override
     public List<News> toNews(Elements elements) throws NotFoundException {
@@ -71,9 +69,6 @@ public class TengriServiceImpl implements TengriService {
                 news.setComments(comments);
                 news.setTags(tagMapper.toListOfTags(tags, news));
 
-                LOGGER.warn("TAGS: "+news.getTags());
-                LOGGER.warn("COMMENTS: " + news.getComments());
-
                 newsList.add(news);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -99,7 +94,7 @@ public class TengriServiceImpl implements TengriService {
                     String dateText = dateElement.getText();
                     LocalDateTime articleDate = dateUtil.parseTengriTime(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusDays(1))){
+                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(1))){
                         keepLoading = false;
                         break;
                     }
@@ -168,7 +163,7 @@ public class TengriServiceImpl implements TengriService {
             }
 
             List<WebElement> commentElements = driver.findElements(
-                    By.xpath("//div[@class='tn-com ament-item']"));
+                    By.xpath("//div[@class='tn-comment-item']"));
 
             for (WebElement commentElement : commentElements) {
                 String author = commentElement.findElement(
@@ -177,7 +172,6 @@ public class TengriServiceImpl implements TengriService {
                         By.xpath(".//div[contains(@class,'tn-comment-item-content-text')]")).getText().trim();
                 String time = commentElement.findElement(
                         By.xpath(".//time")).getText().trim();
-
                 int rating;
                 try {
                     WebElement ratingElement = commentElement.findElement(
@@ -196,8 +190,6 @@ public class TengriServiceImpl implements TengriService {
                     uniqueComments.add(comment);
                 }
             }
-
-            LOGGER.warn("COMMENTS: " + uniqueComments);
             return uniqueComments;
         } catch (Exception e) {
             e.printStackTrace();

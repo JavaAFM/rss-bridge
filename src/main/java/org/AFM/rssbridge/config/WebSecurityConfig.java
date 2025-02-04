@@ -46,9 +46,9 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/signup", "/allSources", "/allMainTags").permitAll()
+                        .requestMatchers("/login", "/signup", "/allSources", "/allMainTags", "/filterParams").permitAll()
                         .requestMatchers("/allUsers", "/scrap").hasAuthority("admin")
-                        .requestMatchers("/allNews", "/filter","/getNewsBySource").hasAnyAuthority("user", "admin")
+                        .requestMatchers("/allNews", "/filter","/getNewsBySource", "/predict").hasAnyAuthority("user", "admin")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)

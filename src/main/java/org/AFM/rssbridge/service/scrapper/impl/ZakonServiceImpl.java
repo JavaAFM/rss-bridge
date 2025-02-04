@@ -58,12 +58,12 @@ public class ZakonServiceImpl implements ZakonService {
                 String summary = fetchSummary(WebSiteConstants.ZAKON_MAIN.getLabel() + url);
 
                 News news = new News();
-                news.setTitle(title);
-                news.setSummary(summary);
+                news.setTitle(title+"\n");
+                news.setSummary(summary+"\n");
                 news.setSource(zakon);
                 news.setUrl(WebSiteConstants.ZAKON_MAIN.getLabel() + url);
                 news.setPublicationDate(publicationDate);
-                news.setMainText(mainText);
+                news.setMainText(mainText+"\n");
                 news.setComments(comments);
                 news.setTags(tagMapper.toListOfTags(tags, news));
 
@@ -110,7 +110,7 @@ public class ZakonServiceImpl implements ZakonService {
                     String dateText = dateElement.getText();
                     LocalDateTime articleDate = dateUtil.parseZakonDate(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))) {
+                    if (articleDate.isBefore(LocalDateTime.now().minusDays(1))) {
                         keepLoading = false;
                         break;
                     }

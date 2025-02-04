@@ -32,13 +32,17 @@ public class UpdateDBImpl implements UpdateDBService {
                 LOGGER.warn("Article already exists: {}", news.getTitle());
             } else {
                 LOGGER.warn("New article saved: {}", news.getTitle());
-                news.getTags().forEach(tag -> tag.setNews(news));
-                news.getComments().forEach(comment -> comment.setNews(news));
+                if(news.getTags()!= null) {
+                    news.getTags().forEach(tag -> tag.setNews(news));
+                    newsTagRepository.saveAll(news.getTags());
+                }
+                if(news.getComments()!=null){
+                    news.getComments().forEach(comment -> comment.setNews(news));
+                    commentRepository.saveAll(news.getComments());
+                }
 
                 newsRepository.save(news);
 
-                newsTagRepository.saveAll(news.getTags());
-                commentRepository.saveAll(news.getComments());
             }
         });
 

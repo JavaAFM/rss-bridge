@@ -15,19 +15,16 @@ import java.util.Optional;
 
 @Repository
 public interface NewsRepository extends JpaRepository<News, Long>, JpaSpecificationExecutor<News> {
+    @Query("SELECT n FROM News n ORDER BY n.publicationDate DESC")
     Page<News> findAll(Pageable pageable);
     Optional<News> findByTitle(String title);
 
-    Page<News> getNewsBySource(Source source, Pageable pageable);
+    @Query("SELECT n FROM News n WHERE n.source = :source ORDER BY n.publicationDate DESC")
+    Page<News> getNewsBySource(@Param("source") Source source, Pageable pageable);
 
     @Query("SELECT n FROM News n ORDER BY n.publicationDate DESC")
     Page<News> getLastNews(Pageable pageable);
 
     @Query("SELECT n FROM News n WHERE n.source.name = :source ORDER BY n.publicationDate DESC")
     Page<News> getLastNewsOfSource(@Param("source") String source, Pageable pageable);
-
-    @Query("SELECT n.title FROM News n " +
-            "WHERE n.publicationDate = (SELECT MAX(n2.publicationDate) FROM News n2 WHERE n2.source.id = n.source.id) " +
-            "ORDER BY n.source.name")
-    List<String> getLastTitles();
 }

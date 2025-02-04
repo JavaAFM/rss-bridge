@@ -8,6 +8,7 @@ import org.AFM.rssbridge.model.News;
 import org.AFM.rssbridge.service.SourceService;
 import org.AFM.rssbridge.service.scrapper.AzattyqService;
 import org.AFM.rssbridge.uitl.DateTimeFormatterUtil;
+import org.AFM.rssbridge.uitl.JwtRequestFilter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,6 +17,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -32,11 +35,16 @@ public class AzattyqServiceImpl implements AzattyqService {
 
     private final SourceService sourceService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AzattyqServiceImpl.class);
+
+
     @Override
     public List<News> toNews(Elements elements) throws NotFoundException {
         List<News> newsList = new ArrayList<>();
         System.out.println("THERE ARE " + elements.size() + " ELEMENTS");
         Source azattyq = sourceService.getSourceByName("Azattyq");
+        int totalArticles = elements.size();
+        int count = 0;
         for (Element element : elements) {
             try {
                 String title = element.select(".media-block__title").text();
@@ -48,16 +56,18 @@ public class AzattyqServiceImpl implements AzattyqService {
                 news.setTitle(title);
                 news.setUrl(WebSiteConstants.AZATTYQ_MAIN.getLabel() + url);
                 news.setMainText(mainText);
-                news.setSummary("");
                 news.setSource(azattyq);
                 news.setPublicationDate(publicationDate);
 
                 newsList.add(news);
+                count++;
+
+                LOGGER.warn(count+"/"+totalArticles+" article processed");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        System.out.println(newsList);
+        LOGGER.warn("Finished processing all articles.");
         return newsList;
     }
 
@@ -80,7 +90,7 @@ public class AzattyqServiceImpl implements AzattyqService {
 
                     LocalDateTime articleDate = dateUtil.parseAzattyqTime(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))) {
+                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(1))) {
                         keepLoading = false;
                         break;
                     }
@@ -120,7 +130,7 @@ public class AzattyqServiceImpl implements AzattyqService {
             Elements mainTextElements = articleDoc.select("div#article-content p");
             StringBuilder mainText = new StringBuilder();
             for(Element element : mainTextElements){
-                mainText.append(element.text());
+                mainText.append(element.text()).append("\n");
             }
 
             return mainText.toString();
