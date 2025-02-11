@@ -4,6 +4,7 @@ import org.example.parser.exception.NotFoundException;
 import org.example.parser.model.News;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.WebDriver;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,4 +14,5 @@ public interface WebSiteScrapper {
     Elements allNewsElements();
     Document connectToWebPage(String url) throws IOException;
     void parse() throws NotFoundException;
+    void setDriver(WebDriver driver);
 }

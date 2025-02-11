@@ -24,11 +24,11 @@ public class DateTimeFormatterUtil {
                 return LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
             } else if (input.equals(YESTERDAY)) {
                 return LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.MIDNIGHT);
+            } else if (input.matches("\\d{1,2} \\p{IsCyrillic}+ \\d{4}, \\d{2}:\\d{2}")) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", new Locale("ru"));
+                return LocalDateTime.parse(input, formatter);
             } else if (input.matches("\\d{1,2} \\p{IsCyrillic}+ \\d{4}")) {
-                DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-                        .parseCaseInsensitive()
-                        .appendPattern("d MMMM yyyy")
-                        .toFormatter(new Locale("ru"));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", new Locale("ru"));
                 LocalDate date = LocalDate.parse(input, formatter);
                 return date.atStartOfDay();
             }

@@ -4,9 +4,15 @@ import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.parser.service.*;
+import org.example.parser.service.impl.TengriServiceImpl;
+import org.example.parser.uitl.ProxyParser;
+import org.openqa.selenium.WebDriver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,4 +60,5 @@ public class ParserApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ParserApplication.class, args);
 	}
+
 }

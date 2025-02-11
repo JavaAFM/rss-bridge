@@ -16,6 +16,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class AzattyqServiceImpl implements AzattyqService {
-    private final WebDriver driver;
+    private WebDriver driver;
     private final WebDriverWait wait;
     private final DateTimeFormatterUtil dateUtil;
 
@@ -41,8 +42,15 @@ public class AzattyqServiceImpl implements AzattyqService {
 
     @Override
     public void parse() throws NotFoundException {
+        Object proxySetting = ((ChromeDriver) driver).getCapabilities().getCapability("proxy");
+        LOGGER.info("Parsing with proxy: {}", proxySetting);
         Elements allElements = allNewsElements();
         toNews(allElements);
+    }
+
+    @Override
+    public void setDriver(WebDriver driver) {
+        this.driver = driver;
     }
 
     @Override
@@ -94,7 +102,7 @@ public class AzattyqServiceImpl implements AzattyqService {
 
                     LocalDateTime articleDate = dateUtil.parseAzattyqTime(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))) {
+                    if (articleDate.isBefore(LocalDateTime.now().minusMinutes(3))) {
                         keepLoading = false;
                         break;
                     }

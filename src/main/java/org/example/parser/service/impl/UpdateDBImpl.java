@@ -42,6 +42,8 @@ public class UpdateDBImpl implements UpdateDBService {
             LOGGER.warn("Article already exists: {}", news.getTitle());
         } else {
             LOGGER.warn("New article saved: {}", news.getTitle());
+            newsRepository.save(news);
+
             if (news.getTags() != null) {
                 news.getTags().forEach(tag -> tag.setNews(news));
                 newsTagRepository.saveAll(news.getTags());
@@ -51,7 +53,7 @@ public class UpdateDBImpl implements UpdateDBService {
                 commentRepository.saveAll(news.getComments());
             }
 
-            newsRepository.save(news);
+
         }
     }
 }

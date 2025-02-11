@@ -1,6 +1,7 @@
 package org.example.parser.service;
 
 import org.example.parser.model.Comment;
+import org.openqa.selenium.WebDriver;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,5 +12,6 @@ public interface TengriService extends WebSiteScrapper{
     List<Comment> fetchComments(String articleUrl);
     List<String> fetchTags(String articleUrl);
     LocalDateTime fetchDate(String articleUrl);
+
 
 }

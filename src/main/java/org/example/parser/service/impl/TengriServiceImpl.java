@@ -1,6 +1,7 @@
 package org.example.parser.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.Setter;
 import org.example.parser.constants.WebSiteConstants;
 import org.example.parser.exception.NotFoundException;
 import org.example.parser.mapper.TagMapper;
@@ -11,6 +12,8 @@ import org.example.parser.repository.SourceRepository;
 import org.example.parser.service.TengriService;
 import org.example.parser.service.UpdateDBService;
 import org.example.parser.uitl.DateTimeFormatterUtil;
+import org.example.parser.uitl.ProxyChecker;
+import org.example.parser.uitl.ProxyParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,6 +22,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -26,6 +30,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +42,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TengriServiceImpl implements TengriService {
     private final DateTimeFormatterUtil dateUtil;
-    private final WebDriver driver;
+    private WebDriver driver;
     private final WebDriverWait wait;
 
     private final TagMapper tagMapper;
@@ -44,8 +52,15 @@ public class TengriServiceImpl implements TengriService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TengriServiceImpl.class);
     @Override
     public void parse() throws NotFoundException {
+        Object proxySetting = ((ChromeDriver) driver).getCapabilities().getCapability("proxy");
+        LOGGER.info("Parsing with proxy: {}", proxySetting);
         Elements allElements = allNewsElements();
         toNews(allElements);
+    }
+
+    @Override
+    public void setDriver(WebDriver driver) {
+        this.driver = driver;
     }
 
 
@@ -105,7 +120,7 @@ public class TengriServiceImpl implements TengriService {
                     String dateText = dateElement.getText();
                     LocalDateTime articleDate = dateUtil.parseTengriTime(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))){
+                    if (articleDate.isBefore(LocalDateTime.now().minusMinutes(3))){
                         keepLoading = false;
                         break;
                     }
@@ -248,4 +263,5 @@ public class TengriServiceImpl implements TengriService {
                 .header("Accept-Language", "en-US,en;q=0.9")
                 .get();
     }
+
 }

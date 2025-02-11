@@ -18,6 +18,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class ZakonServiceImpl implements ZakonService {
-    private final WebDriver driver;
+    private WebDriver driver;
     private final WebDriverWait wait;
     private final DateTimeFormatterUtil dateUtil;
 
@@ -45,8 +46,16 @@ public class ZakonServiceImpl implements ZakonService {
 
     @Override
     public void parse() throws NotFoundException {
+        Object proxySetting = ((ChromeDriver) driver).getCapabilities().getCapability("proxy");
+        LOGGER.info("Parsing with proxy: {}", proxySetting);
+
         Elements allElements = allNewsElements();
         toNews(allElements);
+    }
+
+    @Override
+    public void setDriver(WebDriver driver) {
+        this.driver = driver;
     }
 
     @Override
@@ -123,7 +132,7 @@ public class ZakonServiceImpl implements ZakonService {
                     String dateText = dateElement.getText();
                     LocalDateTime articleDate = dateUtil.parseZakonDate(dateText);
 
-                    if (articleDate.isBefore(LocalDateTime.now().minusMonths(3))) {
+                    if (articleDate.isBefore(LocalDateTime.now().minusMinutes(3))) {
                         keepLoading = false;
                         break;
                     }

@@ -17,6 +17,7 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ import java.util.*;
 @Service
 @AllArgsConstructor
 public class OrdaServiceImpl implements OrdaService {
-    private final WebDriver driver;
+    private WebDriver driver;
     private final WebDriverWait wait;
     private final DateTimeFormatterUtil dateUtil;
 
@@ -44,10 +45,15 @@ public class OrdaServiceImpl implements OrdaService {
 
     @Override
     public void parse() throws NotFoundException {
+        Object proxySetting = ((ChromeDriver) driver).getCapabilities().getCapability("proxy");
+        LOGGER.info("Parsing with proxy: {}", proxySetting);
         Elements allElements = allNewsElements();
         toNews(allElements);
     }
-
+    @Override
+    public void setDriver(WebDriver driver) {
+        this.driver = driver;
+    }
 
     @Override
     public void toNews(Elements elements) throws NotFoundException {
@@ -96,7 +102,7 @@ public class OrdaServiceImpl implements OrdaService {
             LocalDate currentDate = LocalDate.now();
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
             while (keepLoading) {
-                if (daysFetched >= 90) {
+                if (daysFetched >= 1) {
                     keepLoading = false;
                 }
                 String formattedDate = currentDate.minusDays(daysFetched).format(dateFormatter);
